@@ -120,18 +120,20 @@ class _RandomWordsState extends State<RandomWords> {
         pair.asPascalCase,
         style: _biggerFont,
       ),
-      trailing: Icon(
-        alreadySaved ? Icons.star : Icons.star_border,
-        color: alreadySaved ? Colors.deepPurple : null,
-        semanticLabel: alreadySaved ? 'Remove from saved' : 'Save',
+      trailing: IconButton(
+          icon: Icon(
+            alreadySaved ? Icons.star : Icons.star_border,
+            color: alreadySaved ? Colors.deepPurple : null,
+            semanticLabel: alreadySaved ? 'Remove from saved' : 'Save',
+          ),
+          onPressed: () async {
+            if (alreadySaved) {
+              await user.removePair(pair.first, pair.second);
+            } else {
+              await user.addPair(pair.first, pair.second);
+            }
+          },
       ),
-      onTap: () async {
-          if (alreadySaved) {
-            await user.removePair(pair.first, pair.second);
-          } else {
-            await user.addPair(pair.first, pair.second);
-          }
-      },
     );
   }
 
