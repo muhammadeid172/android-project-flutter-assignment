@@ -1,16 +1,17 @@
 # hello_me
 
-A new Flutter project.
+Question 1:
+The class that is used to implement the controller pattern in this library is the snappingSheetController Widget.
+It controls the positions of the snappingsheet.
+It contains a property named snapPositions, which as the name indicates, holds the sheet's snap positions.
+It contains a method named snapToPosition, which as the name indicates, can change the snap position.
 
-## Getting Started
+Question 2:
+SnappingSheet class contains a property named snapPositions, which is a list which saves the different snapping positions for the SheetBelow.
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Question 3:
+InkWell and GestureDetector are very similar, as both almost have the same features, but:
+GestureDetector is more broad and provides more complex options.
+While the InkWell is just a child of the material widget.
+One advantage of the GestureDetector over the InkWell is that it is able to provide more gestures, and that it's not related to a material father.
+One advantage of the InkWell over the GestureDetector is that the InkWell is a rectangle area of Material that responds to ink splashes, so it has effects such as ripple effect tap and other ink related features that aren't available in GestureDetector.
