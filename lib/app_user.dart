@@ -2,17 +2,19 @@ import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'dart:io';
 
 enum Status { authenticated, authenticating, unauthenticated }
 
 class AppUser with ChangeNotifier{
   final FirebaseFirestore _db = FirebaseFirestore.instance;
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseAuth _auth;// = FirebaseAuth.instance;
+  final FirebaseStorage _storage = FirebaseStorage.instance;
   Status status = Status.unauthenticated;
   List<WordPair> starred = [];
 
 
-/*
   AppUser.instance() : _auth = FirebaseAuth.instance {
     _auth.authStateChanges().listen(authChangeListenerReaction);
   }
@@ -27,7 +29,6 @@ class AppUser with ChangeNotifier{
       notifyListeners();
     }
   }
-*/
 
 
   Future<bool> signIn(String email, String password) async{
@@ -108,6 +109,46 @@ class AppUser with ChangeNotifier{
       await _db.collection("Users").doc("StarredWords").update(
           {(_auth.currentUser?.uid ?? ""): FieldValue.arrayRemove([{"first": first, "second": second}])});
     }
+  }
+
+  String getUserEmail() {
+    return _auth.currentUser?.email ?? "unknown@unknowndomain.com";
+  }
+
+  Future<UserCredential?> signUp(String email, String password) async {//muask might return null, but we assume it will succeed
+    try {
+      status = Status.authenticating;
+      notifyListeners();
+      var res =  await _auth.createUserWithEmailAndPassword(email: email, password: password);
+      await uploadLocallyStarredSavings();//note that these starred are just locally starred SO FAR.
+      starred = await getStarredWordsFromCloud();
+      var defaultProfilePicture = "https://firebasestorage.googleapis.com/v0/b/hellome-a7fe7.appspot.com/o/images%2F90X4fWTdrKTlxBZ1ggwRanKPj8P2?alt=media&token=f7704078-a3c4-4f16-ad83-73880fe82084";
+      await _auth.currentUser?.updatePhotoURL(defaultProfilePicture);
+      status = Status.authenticated;
+      notifyListeners();
+      return res;
+    } catch (e) {
+      status = Status.unauthenticated;
+      notifyListeners();
+      return null;
+    }
+  }
+
+  Future<void> uploadNewImage(File file) async {
+    await _storage.ref('images').child(_auth.currentUser?.uid ?? "").putFile(file);
+    var newPhotoURL = await _storage.ref('images').child(_auth.currentUser?.uid ?? "").getDownloadURL();
+    await _auth.currentUser?.updatePhotoURL(newPhotoURL);
+    notifyListeners();
+  }
+
+  Future<String>
+  getImageUrl() async {
+    var defaultProfilePicture = "https://firebasestorage.googleapis.com/v0/b/hellome-a7fe7.appspot.com/o/images%2F90X4fWTdrKTlxBZ1ggwRanKPj8P2?alt=media&token=f7704078-a3c4-4f16-ad83-73880fe82084";
+    return _auth.currentUser?.photoURL ?? defaultProfilePicture;
+  }
+
+  User? getCurrentUser(){
+    return _auth.currentUser;
   }
 
 }
